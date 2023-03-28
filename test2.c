@@ -5,111 +5,172 @@
 #include <assert.h>
 #include "graph.h"
 
-// Lcode khaddam 
-int **MatrixAllocation(int size){
-    int **M;
-    M = (int **) malloc(sizeof(int *)*size);
-    for(int i = 0; i < size; i++){
-        M[i] = (int*) calloc(sizeof(int),size);
-    }
-    return M;
-}
+// Partie 1 :
 
-int **gen_rand(int size, float p){
-    int **M = MatrixAllocation(size);
-    srand(time(NULL));
-    float u = 0;
-    float uu;
-    for(int i = 0; i < size; i++){
-        for(int j = 0; j < size; j++){
-            uu = rand();
-            u = uu/m;
-//            printf("uu value : %d\n", uu);
-            if(u>p){
-                M[i][j] = 0;
-            }
-            else {
-                M[i][j] = 1;
-            }
-        }
-    }
-    return M;
-}
-
-int **gen_nonoriented(int size, float p){
-    int **M = MatrixAllocation(size);
-    srand(time(NULL));
-    float u = 0;
-    float uu;
-    for(int i = 0; i < size; i++){
-        for(int j = i; j < size; j++){
-            uu = rand();
-            u = uu/m;
-            if(u>p){
-                M[i][j] = 0;
-                M[j][i] = 0;
-            }
-            else {
-                M[i][j] = 1;
-                M[j][i] = 1;
-            }
-        }
-    }
-    return M;
-}
-
-int **MatrixProduct(int **Matrix1, int **Matrix2, int size) {
-    int **Product = MatrixAllocation(size);
-
-    for(int i=0;i<size;i++) {
-        for(int j=0;j<size;j++) {
-            for(int n=0;n<size;n=n+1) {
-                Product[i][j]=MAX(Product[i][j],Matrix1[i][n]*Matrix2[n][j]);
-            }
-        }
-    }
-    return Product;
-}
-
-void print(int dist[], int V) {
-    printf("\nThe Distance matrix for Floyd - Warshall\n");
-    for (int i = 0; i < V; i++)
+int **GenerationMatrice(int taille, float p, int oriente)
+{
+    float v;
+    float u;
+    int **matrice = CreationMatrice(taille);
+    for(int i=0;i<taille;i=i+1)
     {
-        for (int j = 0; j < V; j++)
+        for(int j=0;j<taille;j=j+1)
         {
-            if (dist[i * V + j] != INT_MAX)
-                printf("%d\t", dist[i * V + j]);
+            
+            v=rand()%RAND_MAX;
+            u=v/RAND_MAX;
+            if(u<p)
+            {
+                matrice[i][j]=1;
+            }
             else
-                printf("INF\t");
+            {
+                matrice[i][j]=0;
+            }
         }
-        printf("\n");
     }
+    if(oriente==1)
+    {
+        for(int i=0;i<taille;i=i+1)
+        {
+             for(int j=0;j<taille;j=j+1)
+             {
+                matrice[i][j]=matrice[j][i];
+             }
+        }
+    }
+    return matrice;
 }
 
-void FloydWarshall(int **dist, int V) {
-    // Calculate distances
-    for (int k = 0; k < V; k++)
-        // Choose an intermediate vertex
 
-        for (int i = 0; i < V; i++)
-            // Choose a source vertex for given intermediate
-
-            for (int j = 0; j < V; j++)
-                // Choose a destination vertex for above source vertex
-
-                if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX &&
-                    dist[i][k] + dist[k][j] < dist[i][j])
-                    // If the distance through intermediate vertex is less than
-                    // direct edge then update value in distance array
-                    dist[i][j] = dist[i][k] + dist[k][j];
-
-    // Convert 2d array to 1d array for print
-    int dist1d[V * V];
-    for (int i = 0; i < V; i++)
-        for (int j = 0; j < V; j++) dist1d[i * V + j] = dist[i][j];
-
-    print(dist1d, V);
+int DegresGraphes(int **matrice,int taille)
+{
+    int degres = 0;
+    int nb = 0;
+    for(int i=0;i<taille;i=i+1)
+    {
+        for(int j=0;j<taille;j=j+1)
+        {
+            if(matrice[i][j]==1)
+            {
+                nb=nb+1;
+            }
+        }
+        
+        if(degres<nb)
+        {
+            degres=nb;
+        }
+        nb = 0;
+    }
+    return degres;
 }
+
+
+int **ProduitMatriceConnexite(int **matrice1, int **matrice2, int taille)
+{
+    int **newMatrice =CreationMatrice(taille);
+
+    for(int i=0;i<taille;i=i+1)
+    {
+        for(int j=0;j<taille;j=j+1)
+        {
+            newMatrice[i][j]=0;
+            for(int n=0;n<taille;n=n+1)
+            {
+                newMatrice[i][j]=max(newMatrice[i][j],matrice1[i][n]*matrice2[n][j]);
+            }
+        }
+    }
+    return newMatrice;
+}
+
+
+int** Connexite(int **matrice, int taille)
+{
+    int **newMatrice=CopieMatrice(matrice,taille);
+    int **newMatrice2;
+
+    DiagonalMatriceUn(newMatrice,taille);
+    newMatrice2=CopieMatrice(newMatrice,taille);  
+    newMatrice=ProduitMatriceConnexite(newMatrice,newMatrice,taille);
+
+    for(int i=2;i<taille;i=i+1)
+    {
+        newMatrice=ProduitMatriceConnexite(newMatrice2,newMatrice,taille);
+    }
+    return newMatrice;
+}
+
+
+void EstConnexe(int **matrice, int taille)
+{
+    int **M=Connexite(matrice,taille);
+    int connexe = 1;
+    for(int i=0; i<taille;i=i+1)
+    {
+        for(int j=0;j<taille;j=j+1)
+        {
+            if(M[i][j]!=1) connexe=0;
+        }
+    }
+    if(connexe==1) printf("Ce graphe est connexe");
+    else printf("Ce graphe n'est pas connexe");
+}
+
+
+int **ProduitMatriceFloyd(int **matrice1, int **matrice2, int taille)
+{
+    int **newMatrice = CreationMatrice(taille);
+
+    for(int i=0;i<taille;i=i+1)
+    {
+        for(int j=0;j<taille;j=j+1)
+        {
+            newMatrice[i][j]=matrice1[i][j];
+            for(int n=0;n<taille;n=n+1)
+            {
+                newMatrice[i][j]=min(newMatrice[i][j],matrice1[i][n]+matrice2[n][j]);
+            }
+        }
+    }
+    return newMatrice;
+}
+
+
+int** PlusCourtChemin(int **matrice, int taille)
+{
+    int **newMatrice = CreationMatrice(taille);
+    int **newMatrice2;
+
+    for(int i=0;i<taille;i=i+1)
+    {
+        for(int j=0;j<taille;j=j+1)
+        {
+
+            if(matrice[i][j]==0)
+            {
+                newMatrice[i][j]=50000;
+            }
+            else
+            {
+                newMatrice[i][j]=matrice[i][j];
+            }
+        }
+    }
+    DiagonalMatriceZero(newMatrice,taille);
+    newMatrice2=CopieMatrice(newMatrice,taille);
+    newMatrice=ProduitMatriceFloyd(newMatrice,newMatrice,taille);
+
+    for(int i=2;i<taille;i=i+1)
+    {
+        newMatrice=ProduitMatriceFloyd(newMatrice2,newMatrice,taille);
+    }
+
+    return newMatrice;
+}
+
+//Partie 2 :
 
 queue *createQueue() {
     queue *q = malloc(sizeof(queue));
@@ -187,13 +248,62 @@ void bfs(Graph *graph, int startVertex) {
     }
 }
 
+//Parcours le graphe tout en renvoyant le plus court chemin
+void shortestPath(Graph *graph, int startVertex) {
+    
+    queue *q = createQueue();
+
+    // Initialiser les tableaux de distance et de parent
+    int distance[graph->numVertex];
+    int parent[graph->numVertex];
+    int i;
+    for (i = 0; i < graph->numVertex; i++) {
+        distance[i] = -1;
+        parent[i] = -1;
+    }
+
+    // Ajouter le sommet de départ à la file et initialiser sa distance et son parent
+    enqueue(q, startVertex);
+    distance[startVertex] = 0;
+    parent[startVertex] = -1;
+
+    // Parcourir le graphe en largeur jusqu'à ce que la file soit vide
+    while (!isEmpty(q)) {
+        int currentVertex = dequeue(q);
+
+        node *temp = graph->adjLists[currentVertex];
+        while (temp) {
+            int adjVertex = temp->vertex;
+            if (distance[adjVertex] == -1) { // Le sommet n'a pas encore été visité
+                distance[adjVertex] = distance[currentVertex] + 1;
+                parent[adjVertex] = currentVertex;
+                enqueue(q, adjVertex);
+            }
+            temp = temp->next;
+        }
+    }
+
+    // Afficher les distances et les chemins les plus courts
+    printf("Shortest paths from vertex %d:\n", startVertex);
+    for (i = 0; i < graph->numVertex; i++) {
+        printf("Vertex %d, Distance %d, Path: ", i, distance[i]);
+        int j = i;
+        while (j != -1) {
+            printf("%d ", j);
+            j = parent[j];
+        }
+        printf("\n");
+    }
+}
+
+
 
 
 //comment
 int main(){
-    int **M = gen_rand(4, 1);
-    for(int i = 0; i<4; i++){
-        for(int j = 0; j<4; j++){
+    int **M = gen_rand(8, 1);
+    for(int i = 0; i<8; i++){
+        for(int j = 0; j<8; j++){
             printf("%d\t", M[i][j]);
         }
         printf("\n");
@@ -206,10 +316,17 @@ int main(){
     
     int numVertex=4,h=1;
     Graph *graph;
-    
     graph=graphAlloc(numVertex);
     graph=graphCreat(M,numVertex);
+    
     bfs(graph,h);
+
+    printf("\n");
+    printf("\n");
+    printf("\n");
+    printf("\n");
+
+    shortestPath(graph,h);
     
     return 0;
     
