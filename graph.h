@@ -27,6 +27,8 @@ typedef struct Graphz {
 Graph *graphAlloc(int numVertex);//Alloue de l'espace memoire au graph
 Graph *graphCreat(int **Matrix, int Size);//Crée un graph à partir de sa matrice d'adjacence
 
+//queue *createQueue();//Alloue de l'espace memoire à une queu
+
 #endif
 
 

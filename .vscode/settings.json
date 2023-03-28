@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/spoofy/Bureau/ADG/TP1",
+            "binaryPath": "/home/spoofy/Bureau/ADG/TP1/test2",
+            "binaryArgs": []
+        }
+    ]
+}
