@@ -86,6 +86,15 @@ int **ProduitMatriceConnexite(int **matrice1, int **matrice2, int taille)
     return newMatrice;
 }
 
+int **PuissanceMatrice(int **matrice, int taille, int puissance)
+{
+    for(int i=0; i<puissance; i++)
+    {
+        matrice=ProduitMatriceConnexite(matrice, matrice, taille);
+    }
+    return matrice;
+}
+
 
 int** Connexite(int **matrice, int taille)
 {
@@ -298,17 +307,60 @@ void shortestPath(Graph *graph, int startVertex) {
 }
 
 
-
-
-//comment
-int main(){
-    int **M = GenerationMatrice(8,0.7,1);
-    for(int i = 0; i<8; i++){
-        for(int j = 0; j<8; j++){
-            printf("%d\t", M[i][j]);
-        }
-        printf("\n");
+void print(int dist[], int V) {
+    printf("\nVertex  Distance\n");
+    for (int i = 0; i < V; i++)
+    {
+        if (dist[i] != INT_MAX)
+            printf("%d\t%d\n", i, dist[i]);
+        else
+            printf("%d\tINF", i);
     }
+}
+
+int minDistance(int mdist[], int vset[], int V) {
+    int minVal = INT_MAX;
+    static int minInd = -1; //remembers the previous value if not modified in the loop
+    for (int i = 0; i < V; i++)
+        if (vset[i] == 0 && mdist[i] < minVal) {
+            minVal = mdist[i];
+            minInd = i;
+        }
+
+    return minInd;
+}
+void Dijkstra(int **graph, int taille, int src) {
+    int mdist[taille];  // Stores updated distances to vertex
+    int vset[taille];   // vset[i] is true if the vertex i included
+                   // in the shortest path tree
+
+    // Initialise mdist and vset. Set distance of source as zero
+    for (int i = 0; i < taille; i++) mdist[i] = INT_MAX, vset[i] = 0;
+
+    mdist[src] = 0;
+
+    // iterate to find shortest path
+    for (int count = 0; count < taille - 1; count++) {
+        int u = minDistance(mdist, vset, taille);
+        vset[u] = 1;
+
+        for (int v = 0; v < taille; v++) {
+            if (!vset[v] && graph[u][v] != INT_MAX &&
+                mdist[u] + graph[u][v] < mdist[v])
+                mdist[v] = mdist[u] + graph[u][v];
+        }
+    }
+
+    print(mdist, taille);
+
+    return;
+}
+
+
+
+int main(){
+    int **M = GenerationMatrice(8, 0.6, 0);
+    
     
     printf("\n");
     printf("\n");

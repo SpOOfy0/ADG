@@ -97,11 +97,11 @@ Data *ConversionTableau(int **matrice, int taille)
 
 
 
-void printTableau(int **tableau, int taille) 
+void printMatrice(int **Matrice, int taille) 
 {
   for (int i = 0; i < taille; i++) {
     for (int j = 0; j < taille; j++) {
-      printf("%d ", tableau[i][j]);
+      printf("%d ", Matrice[i][j]);
     }
     printf("\n");
   }
