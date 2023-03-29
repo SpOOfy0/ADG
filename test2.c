@@ -4,6 +4,7 @@
 #include <sys/param.h>
 #include <assert.h>
 #include "graph.h"
+#include "outils.h"
 
 // Partie 1 :
 
@@ -301,7 +302,7 @@ void shortestPath(Graph *graph, int startVertex) {
 
 //comment
 int main(){
-    int **M = gen_rand(8, 1);
+    int **M = GenerationMatrice(8,0.7,1);
     for(int i = 0; i<8; i++){
         for(int j = 0; j<8; j++){
             printf("%d\t", M[i][j]);

@@ -1,4 +1,4 @@
-all: test2 graph.o 
+all: test2 graph.o outils.o
 
 graph.o: graph.c graph.h
 	gcc -c graph.c
